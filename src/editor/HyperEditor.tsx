@@ -1,17 +1,12 @@
-import { EditorState } from "draft-js"
-import PluginEditor, { EditorPlugin } from "draft-js-plugins-editor"
+import { Editor, EditorState } from "draft-js"
 import "draft-js/dist/Draft.css"
 import * as React from "react"
 // import createMarkdownShortcutsPlugin from "draft-js-markdown-shortcuts-plugin"
 
 interface HyperEditorProps {}
 
-const plugins: EditorPlugin[] = [
-  // createMarkdownShortcutsPlugin()
-]
-
 class HyperEditor extends React.Component<HyperEditorProps, any> {
-  private editor!: PluginEditor
+  private editor!: Editor
 
   constructor(props: HyperEditorProps) {
     super(props)
@@ -28,7 +23,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     }
   }
 
-  public setEditor(editor: PluginEditor) {
+  public setEditor(editor: Editor) {
     this.editor = editor
   }
 
@@ -46,12 +41,11 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
 
     return (
       <div style={styles.editor} onClick={boundFocusEditor}>
-        <PluginEditor
+        <Editor
           ref={boundSetEditor}
           editorState={this.state.editorState}
           onChange={boundHandleChange}
           placeholder="Enter some text..."
-          plugins={plugins}
         />
       </div>
     )
