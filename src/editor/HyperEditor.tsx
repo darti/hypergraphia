@@ -1,4 +1,10 @@
-import { Editor, EditorState, RichUtils, DraftEditorCommand } from "draft-js"
+import {
+  Editor,
+  EditorState,
+  RichUtils,
+  DraftEditorCommand,
+  DraftHandleValue
+} from "draft-js"
 import "draft-js/dist/Draft.css"
 import * as React from "react"
 // import createMarkdownShortcutsPlugin from "draft-js-markdown-shortcuts-plugin"
@@ -8,13 +14,13 @@ interface HyperEditorProps {}
 class HyperEditor extends React.Component<HyperEditorProps, any> {
   private editor!: Editor
 
-  boundSetEditor: (editor: Editor) => void
-  boundFocusEditor: () => void
-  boundHandleChange: (editorState: EditorState) => void
-  boundhandleKeyCommand: (
+  private boundSetEditor: (editor: Editor) => void
+  private boundFocusEditor: () => void
+  private boundHandleChange: (editorState: EditorState) => void
+  private boundHandleKeyCommand: (
     command: DraftEditorCommand,
     editorState: EditorState
-  ) => void
+  ) => DraftHandleValue
 
   constructor(props: HyperEditorProps) {
     super(props)
@@ -23,7 +29,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     this.boundSetEditor = this.setEditor.bind(this)
     this.boundHandleChange = this.handleChange.bind(this)
     this.boundFocusEditor = this.focusEditor.bind(this)
-    this.boundhandleKeyCommand = this.handleKeyCommand.bind(this)
+    this.boundHandleKeyCommand = this.handleKeyCommand.bind(this)
   }
 
   public focusEditor() {
@@ -43,7 +49,10 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     this.setState({ editorState })
   }
 
-  handleKeyCommand(command: DraftEditorCommand, editorState: EditorState) {
+  public handleKeyCommand(
+    command: DraftEditorCommand,
+    editorState: EditorState
+  ): DraftHandleValue {
     const newState = RichUtils.handleKeyCommand(editorState, command)
 
     if (newState) {
@@ -61,6 +70,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
           ref={this.boundSetEditor}
           editorState={this.state.editorState}
           onChange={this.boundHandleChange}
+          handleKeyCommand={this.boundHandleKeyCommand}
           placeholder="Enter some text..."
         />
       </div>
