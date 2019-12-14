@@ -3,7 +3,8 @@ import {
   EditorState,
   RichUtils,
   DraftEditorCommand,
-  DraftHandleValue
+  DraftHandleValue,
+  Modifier
 } from "draft-js"
 import "draft-js/dist/Draft.css"
 import * as React from "react"
@@ -22,6 +23,12 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     editorState: EditorState
   ) => DraftHandleValue
 
+  private boundHandleBeforeInput: (
+    chars: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ) => DraftHandleValue
+
   constructor(props: HyperEditorProps) {
     super(props)
     this.state = { editorState: EditorState.createEmpty() }
@@ -30,6 +37,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     this.boundHandleChange = this.handleChange.bind(this)
     this.boundFocusEditor = this.focusEditor.bind(this)
     this.boundHandleKeyCommand = this.handleKeyCommand.bind(this)
+    this.boundHandleBeforeInput = this.handleBeforeInput.bind(this)
   }
 
   public focusEditor() {
@@ -45,6 +53,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
   public componentDidMount() {
     this.focusEditor()
   }
+
   public handleChange(editorState: EditorState) {
     this.setState({ editorState })
   }
@@ -63,6 +72,24 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
     return "not-handled"
   }
 
+  public handleBeforeInput(
+    chars: string,
+    editorState: EditorState,
+    eventTimeStamp: number
+  ): DraftHandleValue {
+    if (chars.startsWith("*")) {
+      this.handleKeyCommand("bold", editorState)
+      return "handled"
+    }
+
+    if (chars.startsWith("#")) {
+      this.handleChange(RichUtils.toggleBlockType(editorState, "header-one"))
+      return "handled"
+    }
+
+    return "not-handled"
+  }
+
   public render() {
     return (
       <div style={styles.editor} onClick={this.boundFocusEditor}>
@@ -71,6 +98,7 @@ class HyperEditor extends React.Component<HyperEditorProps, any> {
           editorState={this.state.editorState}
           onChange={this.boundHandleChange}
           handleKeyCommand={this.boundHandleKeyCommand}
+          handleBeforeInput={this.boundHandleBeforeInput}
           placeholder="Enter some text..."
         />
       </div>
