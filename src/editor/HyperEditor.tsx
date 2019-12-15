@@ -1,4 +1,4 @@
-import { Editor, EditorState } from "draft-js"
+import { convertToRaw, Editor, EditorState } from "draft-js"
 import React from "react"
 
 import { connect, ConnectedProps } from "react-redux"
@@ -19,16 +19,29 @@ const mapStateToProps = (state: HyperState) => ({
 
 const connector = connect(mapStateToProps, mapDispatch)
 
-const HyperEditor = (props: Props) => {
-  const [editorState, setEditorState] = React.useState(props.editorState)
+class HyperEditor extends React.Component<Props, HyperState> {
+  private updateEditorState: any
+  constructor(props: Props) {
+    super(props)
+    this.state = { editorState: EditorState.createEmpty() }
+    this.updateEditorState = props.updateEditorState
+  }
 
-  return (
-    <Editor
-      editorState={editorState}
-      onChange={setEditorState}
-      placeholder="Enter some text..."
-    />
-  )
+  public render() {
+    return (
+      <Editor
+        editorState={this.state.editorState}
+        onChange={this.onChange.bind(this)}
+        placeholder="Enter some text..."
+      />
+    )
+  }
+
+  protected onChange(editorState: EditorState) {
+    this.setState({ editorState })
+    const rawState = convertToRaw(editorState.getCurrentContent())
+    this.updateEditorState(rawState)
+  }
 }
 
 export default connector(HyperEditor)

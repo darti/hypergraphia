@@ -1,4 +1,4 @@
-import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { EditorState } from "draft-js"
 
 export interface HyperState {
