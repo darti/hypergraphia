@@ -1,116 +1,34 @@
-import {
-  Editor,
-  EditorState,
-  RichUtils,
-  DraftEditorCommand,
-  DraftHandleValue,
-  Modifier
-} from "draft-js"
-import "draft-js/dist/Draft.css"
-import * as React from "react"
-// import createMarkdownShortcutsPlugin from "draft-js-markdown-shortcuts-plugin"
+import { Editor, EditorState } from "draft-js"
+import React from "react"
 
-interface HyperEditorProps {}
+import { connect, ConnectedProps } from "react-redux"
 
-class HyperEditor extends React.Component<HyperEditorProps, any> {
-  private editor!: Editor
+import { HyperState, updateEditorState } from "./hyperEditorSlice"
 
-  private boundSetEditor: (editor: Editor) => void
-  private boundFocusEditor: () => void
-  private boundHandleChange: (editorState: EditorState) => void
-  private boundHandleKeyCommand: (
-    command: DraftEditorCommand,
-    editorState: EditorState
-  ) => DraftHandleValue
+type PropsFromRedux = ConnectedProps<typeof connector>
 
-  private boundHandleBeforeInput: (
-    chars: string,
-    editorState: EditorState,
-    eventTimeStamp: number
-  ) => DraftHandleValue
-
-  constructor(props: HyperEditorProps) {
-    super(props)
-    this.state = { editorState: EditorState.createEmpty() }
-
-    this.boundSetEditor = this.setEditor.bind(this)
-    this.boundHandleChange = this.handleChange.bind(this)
-    this.boundFocusEditor = this.focusEditor.bind(this)
-    this.boundHandleKeyCommand = this.handleKeyCommand.bind(this)
-    this.boundHandleBeforeInput = this.handleBeforeInput.bind(this)
-  }
-
-  public focusEditor() {
-    if (this.editor) {
-      this.editor.focus()
-    }
-  }
-
-  public setEditor(editor: Editor) {
-    this.editor = editor
-  }
-
-  public componentDidMount() {
-    this.focusEditor()
-  }
-
-  public handleChange(editorState: EditorState) {
-    this.setState({ editorState })
-  }
-
-  public handleKeyCommand(
-    command: DraftEditorCommand,
-    editorState: EditorState
-  ): DraftHandleValue {
-    const newState = RichUtils.handleKeyCommand(editorState, command)
-
-    if (newState) {
-      this.handleChange(newState)
-      return "handled"
-    }
-
-    return "not-handled"
-  }
-
-  public handleBeforeInput(
-    chars: string,
-    editorState: EditorState,
-    eventTimeStamp: number
-  ): DraftHandleValue {
-    if (chars.startsWith("*")) {
-      this.handleKeyCommand("bold", editorState)
-      return "handled"
-    }
-
-    if (chars.startsWith("#")) {
-      this.handleChange(RichUtils.toggleBlockType(editorState, "header-one"))
-      return "handled"
-    }
-
-    return "not-handled"
-  }
-
-  public render() {
-    return (
-      <div style={styles.editor} onClick={this.boundFocusEditor}>
-        <Editor
-          ref={this.boundSetEditor}
-          editorState={this.state.editorState}
-          onChange={this.boundHandleChange}
-          handleKeyCommand={this.boundHandleKeyCommand}
-          handleBeforeInput={this.boundHandleBeforeInput}
-          placeholder="Enter some text..."
-        />
-      </div>
-    )
-  }
+type Props = PropsFromRedux & {
+  editorState: EditorState
 }
 
-const styles = {
-  editor: {
-    border: "1px solid gray",
-    minHeight: "6em"
-  }
+const mapDispatch = { updateEditorState }
+
+const mapStateToProps = (state: HyperState) => ({
+  editorState: state.editorState
+})
+
+const connector = connect(mapStateToProps, mapDispatch)
+
+const HyperEditor = (props: Props) => {
+  const [editorState, setEditorState] = React.useState(props.editorState)
+
+  return (
+    <Editor
+      editorState={editorState}
+      onChange={setEditorState}
+      placeholder="Enter some text..."
+    />
+  )
 }
 
-export { HyperEditor }
+export default connector(HyperEditor)

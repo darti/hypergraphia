@@ -1,26 +1,24 @@
 import React from "react"
 import "./App.css"
-import { HyperEditor } from "./editor/HyperEditor"
+import HyperEditor from "./editor/HyperEditor"
 
-import { Provider, connect } from "react-redux"
-import { createStore } from "redux"
-import { EditorState } from "draft-js"
+import { combineReducers } from "@reduxjs/toolkit"
 
-const defaultState = {
-  editorState: EditorState.createEmpty()
-}
+import { Provider } from "react-redux"
 
-const reducer = (state = defaultState, { editorState, type }) => {
-  if (type === "UPDATE_EDITOR_STATE") {
-    return {
-      ...state,
-      editorState
-    }
-  }
-  return state
-}
+import { configureStore } from "@reduxjs/toolkit"
+import reducer from "./editor/hyperEditorSlice"
 
-const store = createStore(reducer)
+const rootReducer = combineReducers({
+  editor: reducer
+})
+export type RootState = ReturnType<typeof rootReducer>
+
+const store = configureStore({
+  reducer: rootReducer
+})
+
+export type AppDispatch = typeof store.dispatch
 
 const App: React.FC = () => {
   return (
