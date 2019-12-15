@@ -1,9 +1,12 @@
 import { convertToRaw, Editor, EditorState } from "draft-js"
+import "draft-js/dist/Draft.css"
 import React from "react"
 
 import { connect, ConnectedProps } from "react-redux"
 
 import { HyperState, updateEditorState } from "./hyperEditorSlice"
+
+import debounce from "lodash/debounce"
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
@@ -24,7 +27,7 @@ class HyperEditor extends React.Component<Props, HyperState> {
   constructor(props: Props) {
     super(props)
     this.state = { editorState: EditorState.createEmpty() }
-    this.updateEditorState = props.updateEditorState
+    this.updateEditorState = debounce(props.updateEditorState, 500)
   }
 
   public render() {
